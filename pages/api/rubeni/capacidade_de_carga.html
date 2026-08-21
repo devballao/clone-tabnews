@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capacidade de Carga — Veículos</title>
+    <style>
+      :root {
+        --bg: #0f1720;
+        --card: #18232f;
+        --card2: #1e2b39;
+        --line: #2b3a4a;
+        --ink: #eef4fb;
+        --muted: #9db0c3;
+        --accent: #4ea1ff;
+        --accent2: #f0883e;
+        --chip: #22323f;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f4f6f9;
+          --card: #ffffff;
+          --card2: #f7f9fc;
+          --line: #e2e8f0;
+          --ink: #182430;
+          --muted: #5a6b7b;
+          --accent: #1f6fd4;
+          --accent2: #c05a1a;
+          --chip: #eef2f7;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        line-height: 1.45;
+      }
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 60px;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 4px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 0 0 20px;
+        max-width: 760px;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      input[type="search"] {
+        flex: 1;
+        min-width: 200px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--ink);
+        font-size: 14px;
+      }
+      select {
+        padding: 11px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--ink);
+        font-size: 14px;
+      }
+      .count {
+        color: var(--muted);
+        font-size: 12px;
+        margin: 10px 2px 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 14px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: 0.15s;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .icon {
+        width: 76px;
+        height: 40px;
+        flex: none;
+        color: var(--accent);
+        opacity: 0.95;
+      }
+      .icon svg {
+        width: 100%;
+        height: 100%;
+      }
+      .modelo {
+        font-weight: 650;
+        font-size: 15px;
+      }
+      .cat {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+      .stats {
+        display: flex;
+        gap: 10px;
+      }
+      .stat {
+        flex: 1;
+        background: var(--card2);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 10px;
+      }
+      .stat .k {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+      .stat .v {
+        font-size: 19px;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+      .stat.cap .v {
+        color: var(--accent2);
+      }
+      .stat .u {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .tag {
+        font-size: 11px;
+        background: var(--chip);
+        color: var(--muted);
+        padding: 3px 9px;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+      }
+      .empty {
+        color: var(--muted);
+        text-align: center;
+        padding: 40px;
+      }
+      footer {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 26px;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Capacidade de Carga — Veículos de Carga (Brasil)</h1>
+      <p class="sub">
+        Valores aproximados de versões-base (aprox. 2023–2025). Variam conforme
+        versão, ano-modelo e configuração. O valor real de um veículo está no
+        campo <b>CAPACIDADE</b> do CRLV (× 1000 = kg).
+      </p>
+
+      <div class="controls">
+        <input
+          id="q"
+          type="search"
+          placeholder="Buscar modelo… (ex.: Kangoo, Master, HR)"
+        />
+        <select id="fcat">
+          <option value="">Todos os portes</option>
+        </select>
+        <select id="fcomb">
+          <option value="">Todos os combustíveis</option>
+        </select>
+        <select id="ford">
+          <option value="cat">Ordenar: por porte</option>
+          <option value="capdesc">Maior capacidade</option>
+          <option value="capasc">Menor capacidade</option>
+          <option value="modelo">Nome (A–Z)</option>
+        </select>
+      </div>
+      <div class="count" id="count"></div>
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty" style="display: none">
+        Nenhum veículo encontrado com esses filtros.
+      </div>
+
+      <footer>
+        Tabela de referência. Não substitui o documento oficial do veículo.
+        Capacidade de carga = quanto o veículo pode transportar de carga útil;
+        PBT = peso máximo total do veículo carregado.
+      </footer>
+    </div>
+    <script>
+      const ICONS = {
+        van_compacto:
+          '<svg viewBox="0 0 120 60" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M8 44 L8 26 Q8 22 12 22 L52 22 L70 34 L108 34 Q112 34 112 38 L112 44"/><circle cx="34" cy="46" r="7"/><circle cx="92" cy="46" r="7"/><path d="M8 44 L26 44 M42 44 L84 44 M100 44 L112 44"/><path d="M52 22 L52 34 M40 24 L40 32"/></svg>',
+        picape:
+          '<svg viewBox="0 0 120 60" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M8 44 L8 40 L30 40 L36 26 Q37 24 40 24 L60 24 L70 40 L112 40 L112 44"/><rect x="60" y="30" width="50" height="12"/><circle cx="30" cy="46" r="7"/><circle cx="92" cy="46" r="7"/><path d="M8 44 L22 44 M38 44 L84 44 M100 44 L112 44"/></svg>',
+        van_grande:
+          '<svg viewBox="0 0 120 60" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M6 46 L6 20 Q6 16 10 16 L92 16 L112 30 L112 46"/><circle cx="34" cy="48" r="7"/><circle cx="94" cy="48" r="7"/><path d="M6 46 L26 46 M42 46 L86 46 M102 46 L112 46"/><path d="M92 16 L92 30 L112 30 M78 18 L78 30"/></svg>',
+        vuc: '<svg viewBox="0 0 120 60" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M6 46 L6 22 L44 22 L44 46 M46 46 L46 30 Q46 26 50 26 L70 26 L80 36 L80 46"/><rect x="6" y="22" width="38" height="24"/><circle cx="60" cy="48" r="7"/><path d="M6 46 L52 46 M68 46 L80 46"/><path d="M70 26 L70 36 L80 36"/></svg>',
+        caminhao:
+          '<svg viewBox="0 0 120 60" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path d="M4 46 L4 16 L66 16 L66 46 M68 46 L68 28 Q68 24 72 24 L92 24 L104 38 L114 38 L114 46"/><rect x="4" y="16" width="62" height="30"/><circle cx="84" cy="48" r="7"/><circle cx="104" cy="48" r="7"/><path d="M4 46 L74 46 M94 46 L96 46 M112 46 L114 46"/><path d="M92 24 L92 38 L104 38"/></svg>',
+      };
+      const DATA = [
+        {
+          categoria: "Furgão compacto",
+          modelo: "Fiat Fiorino",
+          cap: 650,
+          pbt: 1545,
+          carroceria: "Furgão",
+          comb: "Flex",
+          icone: "van_compacto",
+        },
+        {
+          categoria: "Furgão compacto",
+          modelo: "Renault Kangoo (furgão)",
+          cap: 800,
+          pbt: 1900,
+          carroceria: "Furgão",
+          comb: "Flex",
+          icone: "van_compacto",
+        },
+        {
+          categoria: "Furgão compacto",
+          modelo: "Renault Kangoo E-Tech / ZE (elétrico)",
+          cap: 680,
+          pbt: 2190,
+          carroceria: "Furgão",
+          comb: "Elétrico",
+          icone: "van_compacto",
+        },
+        {
+          categoria: "Furgão compacto",
+          modelo: "Peugeot Partner Rapid",
+          cap: 800,
+          pbt: 1900,
+          carroceria: "Furgão",
+          comb: "Flex",
+          icone: "van_compacto",
+        },
+        {
+          categoria: "Furgão compacto",
+          modelo: "Citroën Berlingo",
+          cap: 780,
+          pbt: 1900,
+          carroceria: "Furgão",
+          comb: "Flex",
+          icone: "van_compacto",
+        },
+        {
+          categoria: "Furgão compacto",
+          modelo: "Fiat Doblò Cargo",
+          cap: 750,
+          pbt: 1970,
+          carroceria: "Furgão",
+          comb: "Flex",
+          icone: "van_compacto",
+        },
+        {
+          categoria: "Picape leve",
+          modelo: "Fiat Strada",
+          cap: 650,
+          pbt: 1730,
+          carroceria: "Caçamba",
+          comb: "Flex",
+          icone: "picape",
+        },
+        {
+          categoria: "Picape leve",
+          modelo: "Volkswagen Saveiro",
+          cap: 780,
+          pbt: 1780,
+          carroceria: "Caçamba",
+          comb: "Flex",
+          icone: "picape",
+        },
+        {
+          categoria: "Picape leve",
+          modelo: "Chevrolet Montana",
+          cap: 590,
+          pbt: 1810,
+          carroceria: "Caçamba",
+          comb: "Turbo Flex",
+          icone: "picape",
+        },
+        {
+          categoria: "Picape leve",
+          modelo: "Fiat Toro",
+          cap: 650,
+          pbt: 2270,
+          carroceria: "Caçamba",
+          comb: "Flex / Diesel",
+          icone: "picape",
+        },
+        {
+          categoria: "Picape média",
+          modelo: "Toyota Hilux",
+          cap: 1000,
+          pbt: 3000,
+          carroceria: "Caçamba",
+          comb: "Diesel",
+          icone: "picape",
+        },
+        {
+          categoria: "Picape média",
+          modelo: "Ford Ranger",
+          cap: 1000,
+          pbt: 3200,
+          carroceria: "Caçamba",
+          comb: "Diesel",
+          icone: "picape",
+        },
+        {
+          categoria: "Picape média",
+          modelo: "Chevrolet S10",
+          cap: 1000,
+          pbt: 3050,
+          carroceria: "Caçamba",
+          comb: "Diesel",
+          icone: "picape",
+        },
+        {
+          categoria: "Picape média",
+          modelo: "Volkswagen Amarok",
+          cap: 1000,
+          pbt: 3080,
+          carroceria: "Caçamba",
+          comb: "Diesel",
+          icone: "picape",
+        },
+        {
+          categoria: "Furgão grande / van",
+          modelo: "Renault Master Furgão",
+          cap: 1500,
+          pbt: 3500,
+          carroceria: "Furgão",
+          comb: "Diesel",
+          icone: "van_grande",
+        },
+        {
+          categoria: "Furgão grande / van",
+          modelo: "Fiat Ducato",
+          cap: 1500,
+          pbt: 3500,
+          carroceria: "Furgão",
+          comb: "Diesel",
+          icone: "van_grande",
+        },
+        {
+          categoria: "Furgão grande / van",
+          modelo: "Peugeot Boxer",
+          cap: 1500,
+          pbt: 3500,
+          carroceria: "Furgão",
+          comb: "Diesel",
+          icone: "van_grande",
+        },
+        {
+          categoria: "Furgão grande / van",
+          modelo: "Citroën Jumper",
+          cap: 1500,
+          pbt: 3500,
+          carroceria: "Furgão",
+          comb: "Diesel",
+          icone: "van_grande",
+        },
+        {
+          categoria: "Furgão grande / van",
+          modelo: "Mercedes-Benz Sprinter",
+          cap: 1700,
+          pbt: 3500,
+          carroceria: "Furgão",
+          comb: "Diesel",
+          icone: "van_grande",
+        },
+        {
+          categoria: "Furgão grande / van",
+          modelo: "Iveco Daily (furgão)",
+          cap: 2000,
+          pbt: 3500,
+          carroceria: "Furgão",
+          comb: "Diesel",
+          icone: "van_grande",
+        },
+        {
+          categoria: "VUC / caminhão leve",
+          modelo: "Hyundai HR",
+          cap: 1500,
+          pbt: 2980,
+          carroceria: "Chassi / Baú",
+          comb: "Diesel",
+          icone: "vuc",
+        },
+        {
+          categoria: "VUC / caminhão leve",
+          modelo: "Kia Bongo K2500",
+          cap: 1470,
+          pbt: 2995,
+          carroceria: "Chassi / Baú",
+          comb: "Diesel",
+          icone: "vuc",
+        },
+        {
+          categoria: "VUC / caminhão leve",
+          modelo: "Volkswagen Delivery Express",
+          cap: 1550,
+          pbt: 3500,
+          carroceria: "Chassi / Baú",
+          comb: "Diesel",
+          icone: "vuc",
+        },
+        {
+          categoria: "VUC / caminhão leve",
+          modelo: "Iveco Daily 35S (chassi)",
+          cap: 2500,
+          pbt: 3500,
+          carroceria: "Chassi / Baú",
+          comb: "Diesel",
+          icone: "vuc",
+        },
+        {
+          categoria: "Caminhão médio",
+          modelo: "VW Delivery 9.170",
+          cap: 4700,
+          pbt: 9000,
+          carroceria: "Chassi / Baú",
+          comb: "Diesel",
+          icone: "caminhao",
+        },
+        {
+          categoria: "Caminhão médio",
+          modelo: "VW Delivery 11.180",
+          cap: 6500,
+          pbt: 11000,
+          carroceria: "Chassi / Baú",
+          comb: "Diesel",
+          icone: "caminhao",
+        },
+        {
+          categoria: "Caminhão médio",
+          modelo: "Mercedes-Benz Accelo 1016",
+          cap: 5500,
+          pbt: 10200,
+          carroceria: "Chassi / Baú",
+          comb: "Diesel",
+          icone: "caminhao",
+        },
+        {
+          categoria: "Caminhão semipesado",
+          modelo: "Mercedes-Benz Atego 1719",
+          cap: 9500,
+          pbt: 16000,
+          carroceria: "Chassi / Baú",
+          comb: "Diesel",
+          icone: "caminhao",
+        },
+      ];
+      const catOrder = [
+        "Furgão compacto",
+        "Picape leve",
+        "Picape média",
+        "Furgão grande / van",
+        "VUC / caminhão leve",
+        "Caminhão médio",
+        "Caminhão semipesado",
+      ];
+
+      const grid = document.getElementById("grid");
+      const q = document.getElementById("q");
+      const fcat = document.getElementById("fcat");
+      const fcomb = document.getElementById("fcomb");
+      const ford = document.getElementById("ford");
+      const count = document.getElementById("count");
+      const empty = document.getElementById("empty");
+
+      [...new Set(DATA.map((d) => d.categoria))]
+        .sort((a, b) => catOrder.indexOf(a) - catOrder.indexOf(b))
+        .forEach((c) => {
+          const o = document.createElement("option");
+          o.value = c;
+          o.textContent = c;
+          fcat.appendChild(o);
+        });
+      [...new Set(DATA.map((d) => d.comb))].sort().forEach((c) => {
+        const o = document.createElement("option");
+        o.value = c;
+        o.textContent = c;
+        fcomb.appendChild(o);
+      });
+
+      function fmt(n) {
+        return n.toLocaleString("pt-BR");
+      }
+
+      function render() {
+        const term = q.value.trim().toLowerCase();
+        const cat = fcat.value,
+          comb = fcomb.value,
+          ord = ford.value;
+        let rows = DATA.filter(
+          (d) =>
+            (!term || d.modelo.toLowerCase().includes(term)) &&
+            (!cat || d.categoria === cat) &&
+            (!comb || d.comb === comb),
+        );
+        rows.sort((a, b) => {
+          if (ord === "capdesc") return b.cap - a.cap;
+          if (ord === "capasc") return a.cap - b.cap;
+          if (ord === "modelo")
+            return a.modelo.localeCompare(b.modelo, "pt-BR");
+          const d =
+            catOrder.indexOf(a.categoria) - catOrder.indexOf(b.categoria);
+          return d !== 0 ? d : b.cap - a.cap;
+        });
+        grid.innerHTML = "";
+        rows.forEach((d) => {
+          const el = document.createElement("div");
+          el.className = "card";
+          el.innerHTML = `
+      <div class="top">
+        <div class="icon">${ICONS[d.icone]}</div>
+        <div><div class="modelo">${d.modelo}</div><div class="cat">${d.categoria}</div></div>
+      </div>
+      <div class="stats">
+        <div class="stat cap"><div class="k">Capacidade</div><div class="v">${fmt(d.cap)} <span class="u">kg</span></div></div>
+        <div class="stat"><div class="k">PBT</div><div class="v">${fmt(d.pbt)} <span class="u">kg</span></div></div>
+      </div>
+      <div class="tags"><span class="tag">${d.carroceria}</span><span class="tag">${d.comb}</span></div>`;
+          grid.appendChild(el);
+        });
+        count.textContent = `${rows.length} veículo(s)`;
+        empty.style.display = rows.length ? "none" : "block";
+      }
+      [q, fcat, fcomb, ford].forEach((e) =>
+        e.addEventListener("input", render),
+      );
+      render();
+    </script>
+  </body>
+</html>
